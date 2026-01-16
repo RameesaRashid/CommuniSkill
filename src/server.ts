@@ -5,6 +5,8 @@ import discoveryRoutes from './routes/discoveryRoutes.js';
 import cors from 'cors';
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import passport from 'passport';
+import './config/passport.js';
 dotenv.config();
 
 const app = express();
@@ -18,6 +20,7 @@ app.use(cors({
   credentials: true 
 }));
 
+app.use(passport.initialize());
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', authRoutes);
 app.use('/api/v1/courses', courseRoutes);
