@@ -1,34 +1,56 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
+import { Model } from 'mongoose';
 
+export interface IUser extends Document {
+  name: string;
+  email: string;
+  password: string;
+  googleId?: string;
+  facebookId?: string;
+  credits: number;
+  role: 'user' | 'admin' | 'superadmin';
+  enrolledCourses: Types.ObjectId[];
+  completedCourses: Types.ObjectId[];
+  createdCourses: Types.ObjectId[];
+  skillsToTeach: {
+    skillName: string;
+    proficiency: 'Beginner' | 'Intermediate' | 'Expert';
+  }[];
+  skillsToLearn: string[];
+  createdAt: Date;
+}
 
-const UserSchema = new Schema({
+const UserSchema = new Schema<IUser>({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  
-  // The Credit Economy: Everyone starts with 5
+  googleId: { type: String, unique: true, sparse: true },
+  facebookId: { type: String, unique: true, sparse: true },
+
   credits: { type: Number, default: 5 },
 
-  // Role Management
-  // Default is 'user', but can be updated to 'admin' or 'superadmin' by DB owner
-  role: { 
-    type: String, 
-    enum: ['user', 'admin', 'superadmin'], 
-    default: 'user' 
+  role: {
+    type: String,
+    enum: ['user', 'admin', 'superadmin'],
+    default: 'user',
   },
 
-  // Skill Barter Data
   skillsToTeach: [{
     skillName: String,
-    proficiency: { type: String, enum: ['Beginner', 'Intermediate', 'Expert'] }
+    proficiency: {
+      type: String,
+      enum: ['Beginner', 'Intermediate', 'Expert'],
+    },
   }],
   skillsToLearn: [String],
 
-  // Udemy-style tracking
   enrolledCourses: [{ type: Schema.Types.ObjectId, ref: 'Course' }],
+  completedCourses: [{ type: Schema.Types.ObjectId, ref: 'Course' }],
   createdCourses: [{ type: Schema.Types.ObjectId, ref: 'Course' }],
 
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.model('User', UserSchema);
+const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+
+export default User;

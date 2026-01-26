@@ -1,27 +1,34 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
+
+interface ILesson {
+  title: string;
+  videoUrl?: string;
+  content?: string; // Markdown or text
+  duration?: string;
+}
+
 
 const CourseSchema = new Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  category: { type: String, required: true }, // e.g., "Programming", "Cooking"
-  
-  // The Mentor
-  instructor: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-
-  // Udemy-style Content
-  modules: [{
-    title: String,
-    contentUrl: String, // Link to video or document
-  }],
-
-  // Enrollment Tracking
-  enrolledStudents: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-  
-  // Credit Value (Fixed for our Barter System)
+  thumbnail: {
+    type: String,
+    default:
+      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1000&auto=format&fit=crop",
+  },
+  category: { type: String, required: true },
+  instructor: { type: Schema.Types.ObjectId, ref: "User", required: true }, // Referencing, not defining
+  enrolledStudents: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  lessons: [
+    {
+      title: { type: String, required: true },
+      videoUrl: { type: String },
+      content: { type: String },
+      duration: { type: String },
+    },
+  ],
   cost: { type: Number, default: 1 },
-  
-  status: { type: String, enum: ['draft', 'published'], default: 'published' },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.model('Course', CourseSchema);
+export default mongoose.models.Course || mongoose.model("Course", CourseSchema);

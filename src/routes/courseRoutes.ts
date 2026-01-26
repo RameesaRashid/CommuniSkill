@@ -1,16 +1,28 @@
 import express from 'express';
-import { createCourse, enrollInCourse, getAllCourses, getCourseById } from '../controllers/courseController.js';
+// 1. Add 'getCoursesByInstructor' to your named imports
+import { 
+  createCourse, 
+  enrollInCourse, 
+  getAllCourses, 
+  getCourseById, 
+  updateCourse,
+  getCoursesByInstructor, // Add this
+  completeCourseSession 
+} from '../controllers/courseController.js';
 import { protect } from '../middleware/auth.js';
-import { completeCourseSession } from '../controllers/courseController.js';
+import { isInstructor } from '../middleware/isInstructor.js';
 
 const router = express.Router();
 
-// Both routes are PROTECTED (User must be logged in)
-router.post('/create', protect, createCourse);
+router.get('/all', getAllCourses);
+router.get('/:id', getCourseById);
+
+// 2. Remove 'courseController.' and just use the function name
+router.get('/instructor/:instructorId', getCoursesByInstructor);
+
+router.post('/create', protect, isInstructor, createCourse);
 router.post('/enroll/:id', protect, enrollInCourse);
-router.get('/:id', protect, getCourseById);
-// This route triggers the 'Teaching' reward logic 
 router.post('/complete/:id', protect, completeCourseSession);
-router.get('/all', protect, getAllCourses);
+router.put("/:id", protect, isInstructor, updateCourse);
 
 export default router;
